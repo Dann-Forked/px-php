@@ -1,5 +1,7 @@
 <?php
+
 namespace MercadoPago;
+
 /**
  * EntityTest Class Doc Comment
  *
@@ -13,6 +15,7 @@ class EntityTest
      */
     protected $config;
     protected $_entity;
+
     /**
      *
      */
@@ -20,16 +23,20 @@ class EntityTest
     {
         $restClient = new RestClient();
         $config = new Config(null, $restClient);
+
         $manager = new Manager($restClient, $config);
         Entity::setManager($manager);
+
         $this->_entity = new DummyEntity();
     }
+
     /**
      *
      */
     protected function tearDown()
     {
     }
+
     /**
      */
     public function testSetVariables()
@@ -42,7 +49,7 @@ class EntityTest
         $object = new \stdClass();
         $this->_entity->object = $object;
         $this->_entity->other = 'other';
-        $this->_entity->email = 'other@test.com';
+
         $expectedValues = [
             "id"                 => null,
             "title"              => "Title",
@@ -53,11 +60,12 @@ class EntityTest
             "object"             => $object,
             "other"              => 'other',
             "readOnlyAttribute"  => null,
-            "email"              => 'other@test.com',
             "maxLengthAttribute" => null
         ];
+
         $this->assertEquals($expectedValues, $this->_entity->toArray());
     }
+
     /**
      */
     public function testGetVariables()
@@ -70,6 +78,7 @@ class EntityTest
         $object = new \stdClass();
         $this->_entity->object = $object;
         $this->_entity->other = 'other';
+
         $expectedValues = [
             "id"            => null,
             "title"         => "Title",
@@ -80,6 +89,7 @@ class EntityTest
             "object"        => $object,
             "other"         => 'other'
         ];
+
         $actualValues = [
             "id"            => $this->_entity->id,
             "title"         => $this->_entity->title,
@@ -90,8 +100,10 @@ class EntityTest
             "object"        => $this->_entity->object,
             "other"         => $this->_entity->other,
         ];
+
         $this->assertEquals($expectedValues, $actualValues);
     }
+
     /**
      * @expectedException        \Exception
      * @expectedExceptionMessage Wrong type object. It should be int for property quantity
@@ -100,6 +112,7 @@ class EntityTest
     {
         $this->_entity->quantity = new \stdClass();
     }
+
     /**
      */
     public function testLoadAll()
@@ -112,23 +125,32 @@ class EntityTest
         $request->expects($this->once())
             ->method('getInfo')->withAnyParameters()
             ->will($this->returnValue('200'));
+
         $restClient = new RestClient();
         $restClient->setHttpRequest($request);
         $config = new Config(null, $restClient);
+
         $manager = new Manager($restClient, $config);
         Entity::setManager($manager);
+
         $this->_entity = new DummyEntity();
+
         $this->assertEquals((array)json_decode($hub->getJson('GET', '/dummies')), $this->_entity->loadAll()['body']);
+
     }
+
     /**
      */
     public function testSave()
     {
         $this->_mockRequest('/v1/payments');
         $this->_entity = new DummyEntity();
+
         $this->_entity->save();
         $this->assertEquals('1340404', $this->_entity->id);
+
     }
+
     /**
      */
     public function testRead()
@@ -138,23 +160,30 @@ class EntityTest
         $this->_entity->id = 1340404;
         $this->_entity->read();
         $this->assertEquals('art', $this->_entity->category_id);
+
     }
+
     /**
      */
     public function testObjectCreation()
     {
         $this->_mockRequest('/v1/payments');
         $this->_entity = new DummyEntity();
+
         $this->_entity->save();
         $this->assertInstanceOf(Payer::class, $this->_entity->payer);
+
     }
+
     /**
      */
     public function testDynamicAttributes()
     {
         $this->_entity->dynamicAttribute = 100;
+
         $this->assertEquals(100, $this->_entity->dynamicAttribute);
     }
+
     /**
      * @expectedException        \Exception
      * @expectedExceptionMessage Error readOnly in attribute readOnlyAttribute
@@ -163,6 +192,7 @@ class EntityTest
     {
         $this->_entity->readOnlyAttribute = 100;
     }
+
     /**
      * @expectedException        \Exception
      * @expectedExceptionMessage Error maxLength in attribute maxLengthAttribute
@@ -171,36 +201,36 @@ class EntityTest
     {
         $this->_entity->maxLengthAttribute = 'xxxxxxxxxxxxxxxxxxxxx';
     }
-    /**
-     */
-    public function testSearch()
-    {
-        $this->_mockRequest('/v1/dummies/search');
-        $this->_entity = new DummyEntity();
-        $this->_entity->email = 'test_user_99529216@testuser.com';
-        $this->_entity->search();
-        $this->assertEquals('227166260-QeyHHDJ8TZ4L3R', $this->_entity->id);
-    }
+
+
     /**
      */
     public function testLoad()
     {
+
     }
+
     /**
      */
     public function testAddNew()
     {
+
     }
+
     /**
      */
     public function testUpdate()
     {
+
     }
+
     /**
      */
     public function testDestroy()
     {
+
     }
+
     public function _mockRequest($endpoint)
     {
         $hub = new FakeApiHub();
@@ -211,10 +241,13 @@ class EntityTest
         $request->expects($this->once())
             ->method('getInfo')->withAnyParameters()
             ->will($this->returnValue('200'));
+
         $restClient = new RestClient();
         $restClient->setHttpRequest($request);
         $config = new Config(null, $restClient);
+
         $manager = new Manager($restClient, $config);
         Entity::setManager($manager);
     }
+
 }
